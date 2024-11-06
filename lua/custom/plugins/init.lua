@@ -97,9 +97,6 @@ return {
       vim.keymap.set('n', '<leader>dgt', function()
         require('dap-go').debug_test()
       end, { desc = 'Debug Go Test' })
-      vim.keymap.set('n', '<leader>dgl', function()
-        require('dap-go').debug_last()
-      end, { desc = 'Debug Last Go Test' })
     end,
   },
   {
@@ -113,24 +110,74 @@ return {
     'rcarriga/nvim-dap-ui',
     dependencies = { 'mfussenegger/nvim-dap', 'nvim-neotest/nvim-nio' },
     config = function()
-      require('dapui').setup()
-      -- You can also add key mappings specific to dap-ui if needed
+      local dapui = require 'dapui'
+
+      dapui.setup {
+        icons = { expanded = '▾', collapsed = '▸', current_frame = '▸' },
+        mappings = {
+          expand = { '<CR>', '<2-LeftMouse>' },
+          open = 'o',
+          remove = 'd',
+          edit = 'e',
+          repl = 'r',
+          toggle = 't',
+        },
+        element_mappings = {},
+        expand_lines = true,
+        force_buffers = true,
+        floating = {
+          max_height = nil,
+          max_width = nil,
+          border = 'single',
+          mappings = {
+            close = { 'q', '<Esc>' },
+          },
+        },
+        controls = {
+          enabled = true,
+          element = 'repl',
+          icons = {
+            pause = '',
+            play = '',
+            step_into = '',
+            step_over = '',
+            step_out = '',
+            step_back = '',
+            run_last = '',
+            terminate = '',
+          },
+        },
+        render = {
+          max_type_length = nil,
+          max_value_lines = 100,
+          indent = 1,
+        },
+        layouts = {
+          { -- Layout 1: scopes on the side
+            elements = {
+              { id = 'scopes', size = 1.0 },
+            },
+            size = 40,
+            position = 'right',
+          },
+          { -- Layout 2: repl at the bottom
+            elements = {
+              { id = 'repl', size = 1.0 },
+            },
+            size = 10,
+            position = 'bottom',
+          },
+        },
+      }
+
       vim.keymap.set('n', '<leader>du', function()
-        require('dapui').toggle()
+        dapui.toggle()
       end, { desc = 'Toggle DAP UI' })
     end,
   },
   { 'nvim-neotest/nvim-nio' },
   {
-    'theHamsta/nvim-dap-virtual-text',
-    dependencies = { 'mfussenegger/nvim-dap' },
-    config = function()
-      require('nvim-dap-virtual-text').setup {
-        enabled = true,
-        highlight_changed_variables = true,
-        show_stop_reason = true,
-        commented = true,
-      }
-    end,
+    'stevearc/dressing.nvim',
+    opts = {},
   },
 }

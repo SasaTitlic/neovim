@@ -19,7 +19,7 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
-vim.opt.mouse = ''
+vim.opt.mouse = 'a'
 
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
@@ -119,7 +119,25 @@ vim.keymap.set('i', '<C-l>', '<Right>', { desc = 'Move right in insert mode' }) 
 vim.keymap.set('n', '<C-s>', ':w<CR>', { noremap = true, silent = true, desc = 'Save file' })
 vim.keymap.set('i', '<C-s>', '<Esc>:w<CR>a', { noremap = true, silent = true, desc = 'Save file' })
 
-vim.keymap.set('n', '<leader>x', '<cmd>bdelete<CR>', { desc = 'Close current buffer' })
+vim.keymap.set('n', '<leader>xb', '<cmd>bdelete<CR>', { desc = 'Close current buffer' })
+vim.keymap.set('n', '<leader>xt', '<cmd>tabclose<CR>', { desc = 'Close current tab' })
+
+vim.api.nvim_create_user_command('CopyPath', function()
+  local path = vim.fn.expand '%:p'
+  vim.fn.setreg('+', path)
+  vim.notify('Copied to clipboard: ' .. path, vim.log.levels.INFO)
+end, {
+  desc = 'Copy current buffer full path to clipboard',
+})
+
+-- Command to copy relative path
+vim.api.nvim_create_user_command('CopyRelativePath', function()
+  local path = vim.fn.expand '%'
+  vim.fn.setreg('+', path)
+  vim.notify('Copied to clipboard: ' .. path, vim.log.levels.INFO)
+end, {
+  desc = 'Copy current buffer relative path to clipboard',
+})
 
 -- Navigate to previous buffer
 vim.keymap.set('n', '<leader>p', function()
@@ -345,12 +363,36 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
-        -- pickers = {}
+        defaults = {
+          mappings = {
+            i = {
+              -- Keep your existing insert mode mappings
+              ['<c-enter>'] = 'to_fuzzy_refine',
+              -- Add buffer deletion mapping
+              ['<c-d>'] = 'delete_buffer',
+            },
+            n = {
+              -- Add normal mode mapping for buffer deletion
+              ['dd'] = 'delete_buffer',
+              ['d'] = 'delete_buffer',
+            },
+          },
+        },
+        pickers = {
+          buffers = {
+            show_all_buffers = true,
+            sort_mru = true,
+            mappings = {
+              i = {
+                ['<c-d>'] = 'delete_buffer',
+              },
+              n = {
+                ['dd'] = 'delete_buffer',
+                ['d'] = 'delete_buffer',
+              },
+            },
+          },
+        },
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -374,6 +416,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>sc', builtin.command_history, { desc = '[S]earch [C]ommand History' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
