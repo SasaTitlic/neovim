@@ -4,6 +4,25 @@
 -- See the kickstart.nvim README for more information
 return {
   {
+    'ray-x/go.nvim',
+    dependencies = {
+      'ray-x/guihua.lua',
+      'neovim/nvim-lspconfig',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    config = function()
+      require('go').setup {
+        test_runner = 'go',
+        run_in_floaterm = true,
+        floaterm = true,
+        trouble = true,
+      }
+    end,
+    event = { 'CmdlineEnter' },
+    ft = { 'go', 'gomod' },
+    build = ':lua require("go.install").update_all_sync()',
+  },
+  {
     'fatih/vim-go',
     ft = { 'go', 'gomod' },
     build = ':GoUpdateBinaries',
@@ -94,7 +113,7 @@ return {
       vim.keymap.set('n', '<leader>dh', function()
         require('dap.ui.widgets').hover()
       end, { desc = 'Hover Variables' })
-      vim.keymap.set('n', '<leader>dgt', function()
+      vim.keymap.set('n', '<leader>dt', function()
         require('dap-go').debug_test()
       end, { desc = 'Debug Go Test' })
     end,
@@ -179,5 +198,33 @@ return {
   {
     'stevearc/dressing.nvim',
     opts = {},
+  },
+  {
+    -- Show changes in gutter
+    'lewis6991/gitsigns.nvim',
+    opts = {},
+  },
+  {
+    'sindrets/diffview.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('diffview').setup {
+        enhanced_diff_hl = true,
+        view = {
+          default = {
+            layout = 'diff2_horizontal',
+          },
+        },
+      }
+    end,
+  },
+  {
+    'kdheepak/lazygit.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    config = function()
+      vim.keymap.set('n', '<leader>gg', ':LazyGit<CR>', { silent = true, desc = 'LazyGit' })
+    end,
   },
 }

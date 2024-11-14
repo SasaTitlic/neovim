@@ -368,13 +368,15 @@ require('lazy').setup({
             i = {
               -- Keep your existing insert mode mappings
               ['<c-enter>'] = 'to_fuzzy_refine',
-              -- Add buffer deletion mapping
-              ['<c-d>'] = 'delete_buffer',
+              ['<c-d>'] = require('telescope.actions').preview_scrolling_down,
+              ['<c-u>'] = require('telescope.actions').preview_scrolling_up,
             },
             n = {
               -- Add normal mode mapping for buffer deletion
               ['dd'] = 'delete_buffer',
               ['d'] = 'delete_buffer',
+              ['<c-d>'] = require('telescope.actions').preview_scrolling_down,
+              ['<c-u>'] = require('telescope.actions').preview_scrolling_up,
             },
           },
         },
@@ -869,24 +871,40 @@ require('lazy').setup({
     end,
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
+  -- { -- You can easily change to a different colorscheme.
+  --   -- Change the name of the colorscheme plugin below, and then
+  --   -- change the command in the config to whatever the name of that colorscheme is.
+  --   --
+  --   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  --   'folke/tokyonight.nvim',
+  --   priority = 1000, -- Make sure to load this before all the other start plugins.
+  --   init = function()
+  --     -- Load the colorscheme here.
+  --     -- Like many other themes, this one has different styles, and you could load
+  --     -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+  --     vim.cmd.colorscheme 'tokyonight-night'
+  --
+  --     -- You can configure highlights by doing something like:
+  --     vim.cmd.hi 'Comment gui=none'
+  --   end,
+  -- },
+  {
+    'catppuccin/nvim',
+    name = 'catppuccin',
+    priority = 1000,
+    opts = {
+      -- Available flavors:
+      -- "mocha"    -- Dark theme with rich colors
+      -- "macchiato" -- Dark theme with medium contrast
+      -- "frappe"   -- Dark theme with lower contrast
+      -- "latte"    -- Light theme
+      flavour = 'macchiato',
+    },
     init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
-
-      -- You can configure highlights by doing something like:
+      vim.cmd.colorscheme 'catppuccin'
       vim.cmd.hi 'Comment gui=none'
     end,
   },
-
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
