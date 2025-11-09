@@ -44,7 +44,7 @@ function M.setup()
       -- Get current file's directory
       local current_dir = vim.fn.expand '%:p:h'
       -- Change to the directory and run the test
-      local cmd = string.format('split | lcd %s | terminal go test -v -run "^%s$" .', current_dir, test_func)
+      local cmd = string.format('split | lcd %s | terminal go test -count=1 -v -run "^%s$" .', current_dir, test_func)
       vim.cmd(cmd)
       vim.cmd 'startinsert'
     else

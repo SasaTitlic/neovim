@@ -1,0 +1,28 @@
+
+:read !git branch -> read ! pise komandu u Vim
+
+:normal 7@a vise makro za redom, put @a baci makro, dodaj naredbu "ayy natrag ide u makro
+
+:w !bash izvrsi sve iz vima u bashu
+
+:.!bash izvrsi liniju u bashu
+
+isprazni registar a 
+:call setreg('a', '') ili :let @a = ''
+
+:call setreg('a', @a . "\n") appenda u a
+
+"a<command> stavi u a registar "A<command> appenda u registar
+
+/"id":www"Ayi":call setreg('a', @a . "")n --> izvadi id sa zarezom
+
+"Ayi" appendaj sve iz qoutea u a
+
+
+:%s/\v^- (\S+.*?)/- `\1`/g
+Breaking it down:
+
+\v - very magic mode
+^-  - matches line start with "- "
+(\S+.*?) - captures first word through rest of text (non-greedily)
+`\1` - surrounds capture with backticks
