@@ -35,7 +35,7 @@ lua/
 
 **Go formatting:**
 ```bash
-# Uses gofumpt and goimports-reviser
+# Uses goimports (adds/removes imports) and gofumpt (formatting)
 # Format on save is enabled
 # Manual format: <leader>f
 ```
