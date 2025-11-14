@@ -1,8 +1,14 @@
+-- Enable faster Lua module loading (Neovim 0.9+)
+-- Improves startup time by caching bytecode compilation
+vim.loader.enable()
+
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
+
+-- Performance profiling: Use :Lazy profile to measure plugin load times
 
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
@@ -216,7 +222,7 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
-  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  { 'tpope/vim-sleuth', event = 'BufReadPre' }, -- Detect tabstop and shiftwidth automatically (lazy loaded)
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -581,10 +587,12 @@ require('lazy').setup({
         ensure_installed = { 'gopls', 'lua_ls' },
       }
 
-      -- Manual server setup
+      -- Manual server setup using new Neovim 0.11+ API
+      -- Replaces deprecated require('lspconfig')[server_name].setup() pattern
       for server_name, server_config in pairs(servers) do
         server_config.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server_config.capabilities or {})
-        require('lspconfig')[server_name].setup(server_config)
+        vim.lsp.config(server_name, server_config)
+        vim.lsp.enable(server_name)
       end
     end,
   },
@@ -629,7 +637,7 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        go = { 'gofumpt', 'goimports-reviser' },
+        go = { 'goimports', 'gofumpt' },
         json = { 'jq' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
@@ -796,8 +804,8 @@ require('lazy').setup({
       vim.cmd.hi 'Comment gui=none'
     end,
   },
-  -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  -- Highlight todo, notes, etc in comments (lazy loaded after buffer is read for better startup time)
+  { 'folke/todo-comments.nvim', event = 'BufReadPost', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',

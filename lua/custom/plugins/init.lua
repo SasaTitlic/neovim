@@ -18,30 +18,10 @@ return {
         trouble = true,
       }
     end,
-    event = { 'CmdlineEnter' },
-    ft = { 'go', 'gomod' },
+    ft = { 'go', 'gomod' }, -- Lazy loaded only for Go files
     build = ':lua require("go.install").update_all_sync()',
   },
-  {
-    'fatih/vim-go',
-    ft = { 'go', 'gomod' },
-    build = ':GoUpdateBinaries',
-    config = function()
-      -- vim-go configuration
-      vim.g.go_highlight_fields = 1
-      vim.g.go_highlight_functions = 1
-      vim.g.go_highlight_function_calls = 1
-      vim.g.go_highlight_extra_types = 1
-      vim.g.go_highlight_operators = 1
-
-      -- Disable vim-go's LSP features as we're using gopls through nvim-lspconfig
-      vim.g.go_def_mapping_enabled = 0
-      vim.g.go_code_completion_enabled = 0
-
-      -- Optional: disable fmt on save (if you prefer to use gofumpt through conform.nvim)
-      vim.g.go_fmt_autosave = 0
-    end,
-  },
+  -- Note: vim-go removed - go.nvim provides all needed features including :GoAddTest
   {
     'folke/persistence.nvim',
     event = 'BufReadPre', -- this will only start session saving when an actual file was opened
@@ -77,6 +57,7 @@ return {
   },
   {
     'windwp/nvim-autopairs',
+    event = 'InsertEnter', -- Lazy load only when entering insert mode
     opts = {
       fast_wrap = {},
       disable_filetype = { 'TelescopePrompt', 'vim' },
@@ -127,6 +108,7 @@ return {
   },
   {
     'rcarriga/nvim-dap-ui',
+    lazy = true, -- Lazy load until first use via keymaps
     dependencies = { 'mfussenegger/nvim-dap', 'nvim-neotest/nvim-nio' },
     config = function()
       local dapui = require 'dapui'
@@ -194,16 +176,12 @@ return {
       end, { desc = 'Toggle DAP UI' })
     end,
   },
-  { 'nvim-neotest/nvim-nio' },
+  -- Note: nvim-nio already loaded as dependency of nvim-dap-ui, standalone entry removed
   {
     'stevearc/dressing.nvim',
     opts = {},
   },
-  {
-    -- Show changes in gutter
-    'lewis6991/gitsigns.nvim',
-    opts = {},
-  },
+  -- Note: gitsigns.nvim already configured in init.lua, duplicate removed
   {
     'sindrets/diffview.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
