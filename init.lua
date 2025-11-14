@@ -557,8 +557,20 @@ require('lazy').setup({
             gopls = {
               completeUnimported = true,
               usePlaceholders = true,
+              staticcheck = true,
+              gofumpt = true,
               analyses = {
                 unusedparams = true,
+                shadow = true,
+              },
+              hints = {
+                assignVariableTypes = true,
+                compositeLiteralFields = true,
+                compositeLiteralTypes = true,
+                constantValues = true,
+                functionTypeParameters = true,
+                parameterNames = true,
+                rangeVariableTypes = true,
               },
             },
           },
