@@ -475,6 +475,19 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
+
+      -- Search in a specific directory and subdirectories
+      vim.keymap.set('n', '<leader>sD', function()
+        local default_dir = vim.fn.expand '%:p:h' -- Default to current file's directory
+        vim.ui.input({ prompt = 'Search directory: ', default = default_dir, completion = 'dir' }, function(input_dir)
+          if input_dir then
+            builtin.live_grep {
+              search_dirs = { input_dir },
+              prompt_title = 'Live Grep in ' .. vim.fn.fnamemodify(input_dir, ':~:.'),
+            }
+          end
+        end)
+      end, { desc = '[S]earch in [D]irectory' })
     end,
   },
 
