@@ -218,6 +218,27 @@ vim.api.nvim_create_autocmd('BufWritePre', {
   end,
 })
 
+-- Organize Rust imports on save using rust-analyzer
+vim.api.nvim_create_autocmd('BufWritePre', {
+  pattern = '*.rs',
+  desc = 'Organize Rust imports using rust-analyzer',
+  group = vim.api.nvim_create_augroup('rust-organize-imports', { clear = true }),
+  callback = function()
+    local params = vim.lsp.util.make_range_params()
+    params.context = { only = { 'source.organizeImports' } }
+    local result = vim.lsp.buf_request_sync(0, 'textDocument/codeAction', params, 3000)
+    for _, res in pairs(result or {}) do
+      for _, action in pairs(res.result or {}) do
+        if action.edit then
+          vim.lsp.util.apply_workspace_edit(action.edit, 'utf-8')
+        elseif action.command then
+          vim.lsp.buf.execute_command(action.command)
+        end
+      end
+    end
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -329,7 +350,7 @@ require('lazy').setup({
       -- Document existing key chains
       spec = {
         { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
-        { '<leader>d', group = '[D]ocument' },
+        { '<leader>d', group = '[D]ebug/Document' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
@@ -593,19 +614,46 @@ require('lazy').setup({
             },
           },
         },
+        rust_analyzer = {
+          settings = {
+            ['rust-analyzer'] = {
+              cargo = {
+                allFeatures = true,
+                loadOutDirsFromCheck = true,
+                runBuildScripts = true,
+              },
+              checkOnSave = {
+                command = 'clippy',
+              },
+              procMacro = {
+                enable = true,
+              },
+            },
+          },
+        },
       }
 
       -- Mason setup
       require('mason').setup()
 
       -- local ensure_installed = { 'gopls', 'lua_ls', 'stylua', 'gofumpt', 'goimports', 'golangci-lint' }
-      local ensure_installed = { 'gopls', 'lua_ls', 'stylua', 'gofumpt', 'goimports', { 'golangci-lint', version = 'v1.64.5' } }
+      local ensure_installed = {
+        'gopls',
+        'lua_ls',
+        'stylua',
+        'gofumpt',
+        'goimports',
+        { 'golangci-lint', version = 'v2.9.0' },
+        'rust_analyzer',
+        'rustfmt',
+        'codelldb',
+      }
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       -- Simple mason-lspconfig setup without handlers
       require('mason-lspconfig').setup {
-        ensure_installed = { 'gopls', 'lua_ls' },
+        ensure_installed = { 'gopls', 'lua_ls', 'rust_analyzer' },
       }
 
       -- Manual server setup using new Neovim 0.11+ API
@@ -659,6 +707,7 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         go = { 'gofumpt' },
+        rust = { 'rustfmt' },
         json = { 'jq' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
@@ -871,7 +920,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'go', 'json' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'go', 'rust', 'json' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {

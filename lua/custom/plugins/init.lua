@@ -23,6 +23,38 @@ return {
   },
   -- Note: vim-go removed - go.nvim provides all needed features including :GoAddTest
   {
+    'mrcjkb/rustaceanvim',
+    version = '^5',
+    lazy = false,
+    ft = { 'rust' },
+    config = function()
+      vim.g.rustaceanvim = {
+        tools = {},
+        server = {
+          on_attach = function(client, bufnr)
+            -- Use the same keymaps defined in LspAttach autocmd
+          end,
+          default_settings = {
+            ['rust-analyzer'] = {
+              cargo = {
+                allFeatures = true,
+                loadOutDirsFromCheck = true,
+                runBuildScripts = true,
+              },
+              checkOnSave = {
+                command = 'clippy',
+              },
+              procMacro = {
+                enable = true,
+              },
+            },
+          },
+        },
+        dap = {},
+      }
+    end,
+  },
+  {
     'folke/persistence.nvim',
     event = 'BufReadPre', -- this will only start session saving when an actual file was opened
     opts = {
@@ -75,6 +107,38 @@ return {
     config = function()
       local dap = require 'dap'
 
+      -- Configure codelldb for Rust debugging
+      dap.adapters.codelldb = {
+        type = 'server',
+        port = '${port}',
+        executable = {
+          command = vim.fn.stdpath 'data' .. '/mason/bin/codelldb',
+          args = { '--port', '${port}' },
+        },
+      }
+
+      dap.configurations.rust = {
+        {
+          name = 'Launch Rust',
+          type = 'codelldb',
+          request = 'launch',
+          program = function()
+            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/target/debug/', 'file')
+          end,
+          cwd = '${workspaceFolder}',
+          stopOnEntry = false,
+        },
+        {
+          name = 'Attach to Rust process',
+          type = 'codelldb',
+          request = 'attach',
+          pid = function()
+            return tonumber(vim.fn.input 'PID: ')
+          end,
+          cwd = '${workspaceFolder}',
+        },
+      }
+
       -- Add your custom key mappings here
       vim.keymap.set('n', '<leader>db', dap.toggle_breakpoint, { desc = 'Toggle Breakpoint' })
       vim.keymap.set('n', '<leader>do', dap.step_over, { desc = 'Step Over' })
@@ -97,6 +161,10 @@ return {
       vim.keymap.set('n', '<leader>dt', function()
         require('dap-go').debug_test()
       end, { desc = 'Debug Go Test' })
+      -- Rust test debugging with rustaceanvim
+      vim.keymap.set('n', '<leader>dr', function()
+        vim.cmd.RustLsp('testables')
+      end, { desc = 'Debug [R]ust Test' })
     end,
   },
   {
