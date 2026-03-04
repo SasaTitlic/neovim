@@ -23,7 +23,10 @@ function M.setup()
 
   -- Lint command
   vim.api.nvim_create_user_command('Lint', function()
-    vim.cmd '!cd %:h && golangci-lint run'
+    local current_dir = vim.fn.expand '%:p:h'
+    local cmd = string.format('split | lcd %s | terminal golangci-lint run', current_dir)
+    vim.cmd(cmd)
+    vim.cmd 'startinsert'
   end, {})
 
   vim.api.nvim_create_user_command('TestFunc', function()
